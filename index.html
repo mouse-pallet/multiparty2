@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script src="http://sample.atmarkit.jp/fux/1210/04/three.min.js"></script>
+  <script src="Stats.js"></script>
+  <script src="MathAnamor.js"></script>
+  <script src="View.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="https://skyway.io/dist/0.3/peer.min.js"></script>
+  <script src="https://skyway.io/dist/multiparty.min.js"></script>
+  
+  <style> video { width:200px; } </style>
+ 
+</head>
+<body>
+ 
+  <div id="streams"></div>
+ 
+<script>
+ 
+  // MultiParty インスタンスを生成
+  multiparty = new MultiParty( {
+    "key": "a6c8450d-0132-4f6b-87fd-335791028f73"  /* SkyWay keyを指定 */
+  });
+ 
+  multiparty.on('my_ms', function(video) {
+    // 自分のvideoを表示
+    var vNode = MultiParty.util.createVideoNode(video);
+    $(vNode).appendTo("#streams");
+  }).on('peer_ms', function(video) {
+
+
+    // peerのvideoを表示
+    var vNode = MultiParty.util.createVideoNode(video);
+    $(vNode).appendTo("#streams");
+    // console.log("vNode:"+vNode);
+    // console.log(video);
+    // console.log(video.src);
+    //ここに、videoAnamoruの処理
+
+    SetVideo(vNode);
+    setup();
+
+
+  }).on('ms_close', function(peer_id) {
+    // peerが切れたら、対象のvideoノードを削除する
+    $("#"+peer_id).remove();
+  });
+ 
+  // サーバとpeerに接続
+  multiparty.start()
+ 
+</script>
+</body>
+</html>

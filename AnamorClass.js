@@ -46,3 +46,12 @@ AnamorClass.prototype.videoStatus = function(){
 AnamorClass.prototype.reloadTexture = function(){
 	if(this.videoTexture) this.videoTexture.needsUpdate = true;
 }
+
+//videoの更新
+AnamorClass.prototype.changeTexture = function(){
+    this.geometry.materials[0].map = new THREE.ImageUtils.loadTexture("img/testCat.jpg");
+}
+//videoの更新
+AnamorClass.prototype.changeVideo = function(){
+    this.geometry.materials[0].map = this.videoTexture;
+}

@@ -245,6 +245,10 @@ function addActor(video){
 	meshlist.push(Mesh);
 	scene.add(Mesh);
 	addActorAction();//タッチクリック操作をつける。
+
+
+    Anamorlist[0].changeTexture();
+    Anamorlist[0].changeVideo();
 	
 	//render
 	render();

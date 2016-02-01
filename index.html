@@ -5,7 +5,8 @@
   <script src="http://sample.atmarkit.jp/fux/1210/04/three.min.js"></script>
   <script src="Stats.js"></script>
   <script src="MathAnamor.js"></script>
-  <script src="View.js"></script>
+  <script src="AnamorClass.js"></script>
+  <script src="StageClass.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
   <script src="https://skyway.io/dist/0.3/peer.min.js"></script>
   <script src="https://skyway.io/dist/multiparty.min.js"></script>
@@ -28,19 +29,15 @@
     // 自分のvideoを表示
     var vNode = MultiParty.util.createVideoNode(video);
     $(vNode).appendTo("#streams");
+    setup(1000,750);//setup(renderWidthSize,renderHightSize)
   }).on('peer_ms', function(video) {
 
 
     // peerのvideoを表示
     var vNode = MultiParty.util.createVideoNode(video);
     $(vNode).appendTo("#streams");
-    // console.log("vNode:"+vNode);
-    // console.log(video);
-    // console.log(video.src);
-    //ここに、videoAnamoruの処理
 
-    SetVideo(vNode);
-    setup();
+    addActor(vNode);
 
 
   }).on('ms_close', function(peer_id) {

@@ -2,7 +2,7 @@
         var renderer;
         var scene;
         var video;
-        var mesh;
+        var mesh = [];
 
         var stats;
 
@@ -15,20 +15,100 @@
 
 
 
-function SetVideo(anothervideo){
-    console.log("SetVideo");
-    console.log("anothervideo:"+anothervideo);
-    statsInit();
-            // if(!isPowerOfTwo(anothervideo.videoWidth)||
-            //         !isPowerOfTwo(anothervideo.videoHeight)){//videoのサイズはべき乗か
-            //     //リサイズ処理
-            //     console.log("resize please.");
-            // }
 
-    video=anothervideo;
+// function SetVideo(anothervideo){
+//     console.log("SetVideo");
+//     console.log("anothervideo:"+anothervideo);
+//     statsInit();
+//             // if(!isPowerOfTwo(anothervideo.videoWidth)||
+//             //         !isPowerOfTwo(anothervideo.videoHeight)){//videoのサイズはべき乗か
+//             //     //リサイズ処理
+//             //     console.log("resize please.");
+//             // }
+
+//     video=anothervideo;
+// }
+
+function addAnamerObj(pvideo){
+    var geometry = new THREE.Geometry();
+    // (5-2)頂点データの作成
+    var uvs = [];
+    var nullary = [];
+    MathAnamor(0.6,3.0,5.0);//(半径、視点Y、視点Z)
+    for(var y = 0 ; y <= 64 ; y++) {
+        for(var x = 0 ; x <= 64 ; x++) {
+        var Plot=MathDot(x / 32 - 1,y / 32 - 1);
+        if(isNaN(Plot.x)){//値がNullの物をNullリスト登録
+                      nullary.push(x + y * 65);
+                    }
+        geometry.vertices.push(
+        new THREE.Vector3(
+        Plot.x/2,
+        Plot.y/2,
+        0.0));
+        uvs.push(
+             new THREE.UV(x / 64, y / 64));
+        }
+    }
+      
+    // (5-3)面データの作成
+    for(var y = 0 ; y < 64 ; y++) {
+        for(var x = 0 ; x < 64 ; x++) {
+        var b = x + y * 65;
+        var m = (x + y) & 1;
+            //四角の頂点のうちどれか一つでもnullの値があれば表示しない
+            if(nullary.indexOf(b)==-1 
+                && nullary.indexOf(b+1)==-1 
+                && nullary.indexOf(b+65)==-1 
+                && nullary.indexOf(b+66)==-1){
+                   geometry.faces.push(
+                        new THREE.Face3(b + 0, b +  1, b + 65, null, null, 0),
+                        new THREE.Face3(b + 1, b + 66, b + 65, null, null, 0));
+                   geometry.faceVertexUvs[0].push(
+                       [uvs[b + 0], uvs[b +  1], uvs[b + 65]],
+                       [uvs[b + 1], uvs[b + 66], uvs[b + 65]]);
+               }
+        }
+    }
+ 
+
+    // make video texture
+    pvideoTexture = new THREE.Texture(pvideo);
+    pvideoTexture.minFilter = THREE.LinearFilter;
+    pvideoTexture.magFilter = THREE.LinearFilter;
+    pvideoTexture.format = THREE.RGBFormat;
+    // geometry.materials=[new THREE.MeshBasicMaterial({
+    //   map: videoTexture
+    // })];
+    //TV会議システムならば影を見る必要はないので、MeshBasicMaterialの方がいいかも
+
+      geometry.materials = [
+                new THREE.MeshPhongMaterial({
+                    color: 0xffffff, specular: 0xffffff, shininess:50,
+                    ambient: 0xffffff, side: THREE.DoubleSide, map: pvideoTexture }),
+                new THREE.MeshPhongMaterial({
+                    color: 0xcccccc, specular: 0x888888, shininess:50,
+                    ambient: 0xcccccc, side: THREE.DoubleSide, map: pvideoTexture })];
+      
+
+ 
+      // (5-5)他のデータを自動計算
+      geometry.computeFaceNormals();
+      geometry.computeVertexNormals();
+     
+      // // (5-6)メッシュの作成
+      var OneMesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial());
+
+      mesh.push(OneMesh);//meshの追加
+
+
+
+      //render  
+    render();
 }
 
-function setup(){
+function setup(firstvideo){
+    video=firstvideo;
     // stats
     statsInit();
 
@@ -62,104 +142,81 @@ function setup(){
     // (5-1)形状オブジェクトの作成
       
 
-    var geometry = new THREE.Geometry();
+    
+
+    addAnamerObj(video);
+
  
-    // (5-2)頂点データの作成
-    var uvs = [];
-    var nullary = [];
-    MathAnamor(0.6,3.0,5.0);//(半径、視点Y、視点Z)
-    for(var y = 0 ; y <= 64 ; y++) {
-        for(var x = 0 ; x <= 64 ; x++) {
-        var Plot=MathDot(x / 32 - 1,y / 32 - 1);
-        if(isNaN(Plot.x)){//値がNullの物をNullリスト登録
-                      nullary.push(x + y * 65);
-                    }
-        geometry.vertices.push(
-        new THREE.Vector3(
-        Plot.x/2,
-        Plot.y/2,
-        0.0));
-	    uvs.push(
-		     new THREE.UV(x / 64, y / 64));
-        }
-    }
+    // // (5-2)頂点データの作成
+    // var uvs = [];
+    // var nullary = [];
+    // MathAnamor(0.6,3.0,5.0);//(半径、視点Y、視点Z)
+    // for(var y = 0 ; y <= 64 ; y++) {
+    //     for(var x = 0 ; x <= 64 ; x++) {
+    //     var Plot=MathDot(x / 32 - 1,y / 32 - 1);
+    //     if(isNaN(Plot.x)){//値がNullの物をNullリスト登録
+    //                   nullary.push(x + y * 65);
+    //                 }
+    //     geometry.vertices.push(
+    //     new THREE.Vector3(
+    //     Plot.x/2,
+    //     Plot.y/2,
+    //     0.0));
+	   //  uvs.push(
+		  //    new THREE.UV(x / 64, y / 64));
+    //     }
+    // }
       
-    // (5-3)面データの作成
-    for(var y = 0 ; y < 64 ; y++) {
-        for(var x = 0 ; x < 64 ; x++) {
-	    var b = x + y * 65;
-	    var m = (x + y) & 1;
-            if(nullary.indexOf(b)==-1 
-                && nullary.indexOf(b+1)==-1 
-                && nullary.indexOf(b+65)==-1 
-                && nullary.indexOf(b+66)==-1){
-	               geometry.faces.push(
-				        new THREE.Face3(b + 0, b +  1, b + 65, null, null, 0),
-				        new THREE.Face3(b + 1, b + 66, b + 65, null, null, 0));
-	               geometry.faceVertexUvs[0].push(
-					   [uvs[b + 0], uvs[b +  1], uvs[b + 65]],
-					   [uvs[b + 1], uvs[b + 66], uvs[b + 65]]);
-               }
-        }
-    }
+    // // (5-3)面データの作成
+    // for(var y = 0 ; y < 64 ; y++) {
+    //     for(var x = 0 ; x < 64 ; x++) {
+	   //  var b = x + y * 65;
+	   //  var m = (x + y) & 1;
+    //         //四角の頂点のうちどれか一つでもnullの値があれば表示しない
+    //         if(nullary.indexOf(b)==-1 
+    //             && nullary.indexOf(b+1)==-1 
+    //             && nullary.indexOf(b+65)==-1 
+    //             && nullary.indexOf(b+66)==-1){
+	   //             geometry.faces.push(
+				//         new THREE.Face3(b + 0, b +  1, b + 65, null, null, 0),
+				//         new THREE.Face3(b + 1, b + 66, b + 65, null, null, 0));
+	   //             geometry.faceVertexUvs[0].push(
+				// 	   [uvs[b + 0], uvs[b +  1], uvs[b + 65]],
+				// 	   [uvs[b + 1], uvs[b + 66], uvs[b + 65]]);
+    //            }
+    //     }
+    // }
  
 
-    // make video texture
-    videoTexture = new THREE.Texture(video);
-    videoTexture.minFilter = THREE.LinearFilter;
-    videoTexture.magFilter = THREE.LinearFilter;
-    videoTexture.format = THREE.RGBFormat;
-    // geometry.materials=[new THREE.MeshBasicMaterial({
-    //   map: videoTexture
-    // })];
-    //TV会議システムならば影を見る必要はないので、MeshBasicMaterialの方がいいかも
+    // // make video texture
+    // videoTexture = new THREE.Texture(video);
+    // videoTexture.minFilter = THREE.LinearFilter;
+    // videoTexture.magFilter = THREE.LinearFilter;
+    // videoTexture.format = THREE.RGBFormat;
+    // // geometry.materials=[new THREE.MeshBasicMaterial({
+    // //   map: videoTexture
+    // // })];
+    // //TV会議システムならば影を見る必要はないので、MeshBasicMaterialの方がいいかも
 
-      geometry.materials = [
-			    new THREE.MeshPhongMaterial({
-				    color: 0xffffff, specular: 0xffffff, shininess:50,
-				    ambient: 0xffffff, side: THREE.DoubleSide, map: videoTexture }),
-			    new THREE.MeshPhongMaterial({
-				    color: 0xcccccc, specular: 0x888888, shininess:50,
-				    ambient: 0xcccccc, side: THREE.DoubleSide, map: videoTexture })];
+    //   geometry.materials = [
+			 //    new THREE.MeshPhongMaterial({
+				//     color: 0xffffff, specular: 0xffffff, shininess:50,
+				//     ambient: 0xffffff, side: THREE.DoubleSide, map: videoTexture }),
+			 //    new THREE.MeshPhongMaterial({
+				//     color: 0xcccccc, specular: 0x888888, shininess:50,
+				//     ambient: 0xcccccc, side: THREE.DoubleSide, map: videoTexture })];
       
 
  
-      // (5-5)他のデータを自動計算
-      geometry.computeFaceNormals();
-      geometry.computeVertexNormals();
+    //   // (5-5)他のデータを自動計算
+    //   geometry.computeFaceNormals();
+    //   geometry.computeVertexNormals();
      
-      // // (5-6)メッシュの作成
-      mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial());
+    //   // // (5-6)メッシュの作成
+    //   mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial());
       scene.add(mesh);
 
-
-
-      //補助線
-      var Line=[];
-      for(var n=0;n<4;n++){
-            Line[n] = new THREE.Geometry();
-        }
-
-        //頂点座標の追加
-        Line[0].vertices.push( new THREE.Vertex( new THREE.Vector3( -1, 1, 0) ) ); 
-        Line[0].vertices.push( new THREE.Vertex( new THREE.Vector3( 1, 1, 0) ) );
-        
-        Line[1].vertices.push( new THREE.Vertex( new THREE.Vector3( 1, 1, 0) ) ); 
-        Line[1].vertices.push( new THREE.Vertex( new THREE.Vector3( 1, -1, 0) ) );
-
-        Line[2].vertices.push( new THREE.Vertex( new THREE.Vector3( 1, -1, 0) ) ); 
-        Line[2].vertices.push( new THREE.Vertex( new THREE.Vector3( -1, -1, 0) ) );
-        
-        Line[3].vertices.push( new THREE.Vertex( new THREE.Vector3( -1, -1, 0) ) ); 
-        Line[3].vertices.push( new THREE.Vertex( new THREE.Vector3( -1, 1, 0) ) );
-         
-
-
-      for(var n=0;n<4;n++){
-            scene.add( new THREE.Line( Line[n], new THREE.LineBasicMaterial( { color: 0xffffff} )));
-      }
-        
-
+    var i=0;////仮
 
     // タッチイベントをサポートしているか調べる
     //対応してなければクリック対応
@@ -173,8 +230,8 @@ function setup(){
             var moveY=(e.touches[0].pageY+e.touches[1].pageY)/2-renderer.domElement.offsetTop;
 
             //X軸, Y軸共に -1 ~ 1 の間に収まるよう調整し、その位置に移動
-            mesh.position.x=(moveX/rWidth)*2-1;
-            mesh.position.y=-(moveY/rHeight)*2+1;
+            mesh[i].position.x=(moveX/rWidth)*2-1;
+            mesh[i].position.y=-(moveY/rHeight)*2+1;
         });
 
         //回転
@@ -190,12 +247,12 @@ function setup(){
             //回転を求める
             var heigt=Math.abs(e.touches[0].pageY-Py);
             var width=Math.abs(e.touches[0].pageX-Px);
-            mesh.rotation.z=Math.atan2(heigt,width);
+            mesh[i].rotation.z=Math.atan2(heigt,width);
 
 
             //X軸, Y軸共に -1 ~ 1 の間に収まるよう調整し、その位置に移動
-            mesh.position.x=(moveX/rWidth)*2-1;
-            mesh.position.y=-(moveY/rHeight)*2+1;
+            mesh[i].position.x=(moveX/rWidth)*2-1;
+            mesh[i].position.y=-(moveY/rHeight)*2+1;
         });
 
     }else{
@@ -206,8 +263,8 @@ function setup(){
             var mouseY = e.pageY-renderer.domElement.offsetTop;
 
             //X軸, Y軸共に -1 ~ 1 の間に収まるよう調整し、その位置に移動
-            mesh.position.x=(mouseX/rWidth)*2-1;
-            mesh.position.y=-(mouseY/rHeight)*2+1;
+            mesh[i].position.x=(mouseX/rWidth)*2-1;
+            mesh[i].position.y=-(mouseY/rHeight)*2+1;
 
             //回転を求める
             var heigt=(mouseX/rWidth)*2-1;

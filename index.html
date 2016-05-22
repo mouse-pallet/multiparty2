@@ -64,6 +64,13 @@ function onRadioSpeed( speed )
 <body>
  
   <div style="float:left;" id="streams"></div>
+  <div>
+    <form>
+      <input type="text"><button type="submit">send</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
   <div style="float:left;">
 </div>
  
@@ -96,6 +103,32 @@ function onRadioSpeed( speed )
  
   // サーバとpeerに接続
   multiparty.start()
+
+
+
+  //テキストを入力し、submitしたとき
+  $("form").on("submit", function(ev) {
+ 
+    //onsubmitのデフォルト動作（reload）を抑制
+    ev.preventDefault();
+ 
+    //テキストを取得
+    var $input = $(this).find("input[type=text]"); 
+    var data = $input.val();
+    $input.val("");
+ 
+    //テキストを表示
+    $("#message").append(data + "<br>");
+ 
+    //peerにメッセージを送信
+    multiparty.send(data);
+ 
+  });
+ 
+  // peerからテキストメッセージを受信したとき
+  multiparty.on('message', function(mesg) {
+    $("#message").append(mesg.data + "<br>");
+  });
  
 </script>
 

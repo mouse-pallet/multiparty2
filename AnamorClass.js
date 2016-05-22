@@ -1,3 +1,14 @@
+var imgDic={
+    0  :new THREE.ImageUtils.loadTexture("asamin360/0d.jpg"),
+    45 :new THREE.ImageUtils.loadTexture("asamin360/45d.jpg"),
+    90 :new THREE.ImageUtils.loadTexture("asamin360/90d.jpg"),
+    135:new THREE.ImageUtils.loadTexture("asamin360/135d.jpg"),
+    180:new THREE.ImageUtils.loadTexture("asamin360/180d.jpg"),
+    225:new THREE.ImageUtils.loadTexture("asamin360/225d.jpg"),
+    315:new THREE.ImageUtils.loadTexture("asamin360/315d.jpg"),
+}
+
+
 function AnamorClass(boneGeometry,video){//コンストラクタ
     this.video=video;
     // this.geometry = new THREE.Geometry();
@@ -32,6 +43,7 @@ AnamorClass.prototype.mappingVideo = function(){
 
       // // (5-6)メッシュの作成
       var mesh = new THREE.Mesh(this.geometry, new THREE.MeshFaceMaterial());
+      mesh.rotation.z=Math.PI;
       return mesh;
 
 }
@@ -55,3 +67,33 @@ AnamorClass.prototype.changeTexture = function(){
 AnamorClass.prototype.changeVideo = function(){
     this.geometry.materials[0].map = this.videoTexture;
 }
+
+AnamorClass.prototype.changeWithRadian = function(radian){
+    console.log("ChangeTexture");
+    
+    var degree = radian*180/Math.PI;
+    if(247.5 < degree && degree < 292.5){
+        
+        this.geometry.materials[0].map = this.videoTexture;  
+
+    }else if(0 < degree && degree >22.5 && 337.5 < degree && degree < 360){
+        this.geometry.materials[0].map = imgDic[0];
+
+    }else if( 22.5 < degree && degree < 67.5){
+        this.geometry.materials[0].map = imgDic[45];
+    }else if( 67.5 < degree && degree < 112.5){
+        this.geometry.materials[0].map = imgDic[90];
+    }else if( 112.5 < degree && degree < 157.5){
+        this.geometry.materials[0].map = imgDic[135];
+    }else if( 157.5 < degree && degree < 202.5){
+        this.geometry.materials[0].map = imgDic[180];
+    }else if( 202.5 < degree && degree < 247.5){
+        this.geometry.materials[0].map = imgDic[225];
+    }else if( 292.5 < degree && degree < 337.5){
+        this.geometry.materials[0].map = imgDic[315];
+    }
+}
+
+
+
+

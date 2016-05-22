@@ -54,7 +54,8 @@ function makeBone(){
     var geometry = new THREE.Geometry();
     var uvs = [];
     var nullary = [];
-    MathAnamor(0.6,3.0,5.0);//(半径、視点Y、視点Z)
+    // MathAnamor(0.6,3.0,5.0);//(半径、視点Y、視点Z)
+    MathAnamor(0.7,2.68,7);//(6cm、23cm、60cm)
     for(var y = 0 ; y <= 64 ; y++) {
         for(var x = 0 ; x <= 64 ; x++) {
         var Plot=MathDot(x / 32 - 1,y / 32 - 1);
@@ -103,9 +104,9 @@ function makeBone(){
 //meshのタッチクリック操作を付け加えるメソッド
 function addActorAction(){
 
-	var i=0;
+    var i=0;
 
-	//タッチイベントをサポートしているか調べる
+    //タッチイベントをサポートしているか調べる
     //対応してなければクリック対応
     if(window.TouchEvent){
         console.log("タッチイベントに対応");
@@ -113,8 +114,9 @@ function addActorAction(){
         //移動
         renderer.domElement.addEventListener("touchstart", function(e){
             //中間値ベクトルの座標を求め、そこからレンダー自体の位置との差分を取る。
-            var moveX=(e.touches[0].pageX+e.touches[1].pageX)/2-renderer.domElement.offsetLeft;
+            // var moveX=(e.touches[0].pageX+e.touches[1].pageX)/2-renderer.domElement.offsetLeft;
             var moveY=(e.touches[0].pageY+e.touches[1].pageY)/2-renderer.domElement.offsetTop;
+            var moveX=(e.touches[0].pageX+e.touches[1].pageX)/2-renderer.domElement.offsetLeft;
 
             //X軸, Y軸共に -1 ~ 1 の間に収まるよう調整し、その位置に移動
             meshlist[i].position.x=(moveX/rWidth)*2-1;
@@ -126,16 +128,21 @@ function addActorAction(){
             //回転の処理
             
             //中間値
-            var Px=(e.touches[0].pageX+e.touches[1].pageX)/2;
             var Py=(e.touches[0].pageY+e.touches[1].pageY)/2;
+            var Px=(e.touches[0].pageX+e.touches[1].pageX)/2;
+            // var Py=(e.touches[0].pageY+e.touches[1].pageY)/2;
             //中間値ベクトルの座標を求め、そこからレンダー自体の位置との差分を取る。
             var moveX=Px-renderer.domElement.offsetLeft;
             var moveY=Py-renderer.domElement.offsetTop;
             //回転を求める
-            var heigt=Math.abs(e.touches[0].pageY-Py);
-            var width=Math.abs(e.touches[0].pageX-Px);
-            var radian = Math.atan2(heigt,width);
-            meshlist[i].rotation.z = radian;
+            // var heigt=Math.abs(e.touches[0].pageY-Py);
+            // var width=Math.abs(e.touches[0].pageX-Px);
+            // var radian = Math.atan2(heigt,width)+Math.PI;
+            var radian = Math.atan2(-(Py-e.touches[0].pageY),Px-e.touches[0].pageX)+Math.PI;
+            var degree = radian*180/Math.PI;
+            console.log("atan2:"+radian+"degree:"+degree);
+            // meshlist[i].rotation.z = radian;
+            Anamorlist[i].changeWithRadian(radian);
 
 
             //X軸, Y軸共に -1 ~ 1 の間に収まるよう調整し、その位置に移動
@@ -163,7 +170,7 @@ function addActorAction(){
             console.log("rotation:"+rr/heigt);
             console.log("rotation:"+Math.atan2(heigt,width));
             // meshlist[i].rotation.z=Math.atan2(heigt,width);
-            var radian = Math.atan2(heigt,width);
+            var radian = Math.atan2(heigt,width)+Math.PI;
             meshlist[i].rotation.z = radian;
             
          
@@ -246,9 +253,10 @@ function addActor(video){
 	scene.add(Mesh);
 	addActorAction();//タッチクリック操作をつける。
 
-
-    Anamorlist[0].changeTexture();
-    Anamorlist[0].changeVideo();
+    // //画像をマッピングし直す
+    // Anamorlist[0].changeTexture();
+    // //ビデオをマッピングし直す
+    // Anamorlist[0].changeVideo();
 	
 	//render
 	render();
